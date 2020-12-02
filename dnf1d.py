@@ -25,14 +25,14 @@ def gaussian_distribution_uniform(position, size, sigma):
 class DNF1D:
     def __init__(self, width):
         self.width = width
-        self.dt = 0.1
-        self.tau = 0.5
+        self.dt = 0.2
+        self.tau = 1
         self.dt_tau = self.dt/self.tau
-        self.cexc = 2
-        self.sexc = 0.01
-        self.cinh = 1
-        self.sinh = 0.1
-        self.gain = 2
+        self.cexc = 3.5
+        self.sexc = 0.005
+        # self.cinh = 1
+        # self.sinh = 0.1
+        self.gain = 1.5
         self.resting_level = -2
         self.gi = 0
 
