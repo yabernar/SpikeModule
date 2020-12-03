@@ -13,7 +13,7 @@ with AedatFile("Captures/drone_top_fisheye_fast.aedat4") as f:
     height, width = f['events'].size
     events = np.hstack([packet for packet in f['events'].numpy()])
 timescale = 50
-offset = 11000000
+offset = 9000000
 start_time = events[0][0] + offset
 dsec = offset//100000
 dsec_offset = events[0][0]//100000

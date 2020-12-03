@@ -1,2 +1,2 @@
 sudo apt install python3-opencv
-pip3 install dv pillow scipy matplotlib
+pip3 install dv pillow scipy matplotlib brian2
