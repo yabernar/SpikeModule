@@ -1,19 +1,21 @@
 import numpy as np
 from dv import AedatFile
 from PIL import Image
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from dnf1d import *
 
-
+matplotlib.use("Qt5Agg")
+print(matplotlib.get_backend())
 np.set_printoptions(threshold=np.inf)
 
-with AedatFile("Captures/drone_top_fisheye_fast.aedat4") as f:
+with AedatFile("Captures/circle_travel.aedat4") as f:
     # Access dimensions of the event stream
     height, width = f['events'].size
     events = np.hstack([packet for packet in f['events'].numpy()])
-timescale = 50
-offset = 9000000
+timescale = 1
+offset = 1500000
 start_time = events[0][0] + offset
 dsec = offset//100000
 dsec_offset = events[0][0]//100000
@@ -24,6 +26,8 @@ while current_index < events.shape[0] - 1 and events[current_index][0] < start_t
 
 # Simulation parameters
 resolution = (640, 480)
+display = np.zeros((480, 640, 3), dtype=float)
+
 
 def update_stimulus():
     global current_index, dnf, start_time, dsec
@@ -34,39 +38,55 @@ def update_stimulus():
     start_time = current_end
     dnfx.input.fill(0)
     dnfy.input.fill(0)
+    display.fill(0)
     while current_index < events.shape[0] - 1 and events[current_index][0] < current_end:
         dnfx.input[events[current_index][1]] += 0.3
         dnfy.input[events[current_index][2]] += 0.3
+        if events[current_index][3] == 1: display[events[current_index][2], events[current_index][1], 1] = 1
+        else: display[events[current_index][2], events[current_index][1], 0] = 1
         current_index += 1
+
 
 def updatefig(*args):
     update_stimulus()
     dnfx.update_map()
     dnfy.update_map()
 
+    bubble = np.outer(dnfy.activations, dnfx.activations)
+    display[:,:,2] = bubble
+
     inpx.set_ydata(dnfx.input)
     potx.set_ydata(dnfx.potentials)
 
-    inpy.set_ydata(dnfy.input)
-    poty.set_ydata(dnfy.potentials)
+    inpy.set_array(dnfy.input)
+    poty.set_array(dnfy.potentials)
 
-    return potx, inpx, inpy, poty
+    img.set_data(display)
+    return potx, inpx, inpy, poty, img
+
 
 if __name__ == '__main__':
     timestep = 1000 # in microseconds
-    fig, (ax1, ax2) = plt.subplots(nrows=2)
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(3, 3)
 
+    ax1 = fig.add_subplot(gs[0, 1:])
     dnfx = DNF1D(resolution[0])
     inpx, = ax1.plot(list(range(dnfx.width)), dnfx.input)
     potx, = ax1.plot(list(range(dnfx.width)), dnfx.input)
     ax1.set_ylim(-3, 3)
     ax1.set_title("X axis")
 
+    ax2 = fig.add_subplot(gs[1:, 0])
     dnfy = DNF1D(resolution[1])
-    inpy, = ax2.plot(list(range(dnfy.width)), dnfy.input)
-    poty, = ax2.plot(list(range(dnfy.width)), dnfy.input)
-    ax2.set_ylim(-3, 3)
+    inpy = ax2.hlines(list(range(dnfy.width)), 0, resolution[1])
+    poty = ax2.hlines(list(range(dnfy.width)), 0, resolution[1])
+    ax2.set_xlim(0, 1)
     ax2.set_title("Y axis")
-    
-    ani = animation.FuncAnimation(fig, updatefig, interval=timestep//200, blit=True)
+
+    ax3 = fig.add_subplot(gs[1:, 1:], sharex=ax1, sharey=ax2)
+    img = ax3.imshow(display)
+    ax3.set_title("Spikes")
+
+    ani = animation.FuncAnimation(fig, updatefig, interval=timestep//50, blit=True)
     plt.show()
