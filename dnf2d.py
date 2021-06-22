@@ -34,12 +34,12 @@ class DNF2D:
         self.dt = 0.2
         self.tau = 1
         self.dt_tau = self.dt/self.tau
-        self.cexc = 3.5
-        self.sexc = 0.005
+        self.cexc = 6
+        self.sexc = 0.02
         # self.cinh = 1
         # self.sinh = 0.1
-        self.gain = 1.5
-        self.resting_level = -2
+        self.gain = 5
+        self.resting_level = -6
         self.gi = 0
 
         self.input = np.zeros((width, height), dtype=float)

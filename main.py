@@ -7,11 +7,16 @@ with AedatFile("Captures/circle_travel.aedat4") as f:
     # list all the names of streams in the file
     print(f.names)
 
-    # Access dimensions of the event stream
+    # Use Aedat4 for events
     height, width = f['events'].size
     list = np.hstack([packet for packet in f['events'].numpy()])
+
+    # Use txt file for events
+
+
     # frames = Frame(list, (height, width))
     # frames.display()
+
 
 
     # loop through the "events" stream

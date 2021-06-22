@@ -1,0 +1,30 @@
+Distant road 1 : small targets, multiple targets (car, insects), distraction (rain)
+Distant road 2 : lots of targets, some distractions (dust at the start !)
+Distant road 3 : same as above, one pedestrian, lots of cuts
+Highway 1 : multiple targets, a few distractions and cuts
+Highway 4 : same as above, longer, constant small noise on the side
+Highway 5 : many targets, lots of cuts
+Long boat : Video is looooong, boat is slow, many distractions and noise
+Plane 2 : Cuts and very subtle move
+Swan 1 : Very noisy, only outline is visible
+Swan 2 : Very noisy, with a lot of insects
+Swan 3 : Same as above with swarms of insects
+Trees and water : Cuts and lots of noise without target
+
+
+Selection :
+
+Birds : small target, fast distractions
+Plane 1 : No cuts, no distractions, big target
+walk : one pedestrian target with noise and some distractors
+
+
+One of :
+
+Highway 2 : multiple targets, very few distractions and cuts
+Highway 3 : same as above
+
+Metrics :
+
+Position - Distances entre le centre de la bulle et les spikes. L'histogramme doit être décroissant.
+Time - Average spikes per time tick.

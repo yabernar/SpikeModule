@@ -67,6 +67,7 @@ def update_stimulus():
         #saliency = cv2.imread(os.path.join(frame_path, "sal" + str(current_frame) + ".png"))
         saliency = cv2.imread(os.path.join(frame_path, "thr" + str(current_frame) + ".png"))
 
+
 def updatefig(*args):
     update_stimulus()
     dnfx.update_map()
@@ -75,7 +76,14 @@ def updatefig(*args):
     bubble = np.outer(dnfy.activations, dnfx.activations)
     display[:,:,2] = bubble
 
-    dnf_att.input = bubble[:saliency.shape[0], :saliency.shape[1]] + saliency[:,:,0]
+    attention_input = bubble[:saliency.shape[0], :saliency.shape[1]] + saliency[:,:,0]/255
+    res = np.zeros((attention_input.shape[0]//10, attention_input.shape[1]//10))
+    px = np.vsplit(attention_input, attention_input.shape[0]//10)
+    for i in range(len(px)):
+        px2 = np.hsplit(px[i], attention_input.shape[1]//10)
+        for j in range(len(px2)):
+            res[i, j] = np.mean(px2[j])
+    dnf_att.input = res
     dnf_att.update_map()
 
     inpx.set_ydata(dnfx.input)
@@ -87,7 +95,7 @@ def updatefig(*args):
     img.set_data(display)
     frame.set_data(saliency)
 
-    att_pot.set_data(dnf_att.input)
+    att_pot.set_data(dnf_att.potentials)
     att_dec.set_data(dnf_att.activations)
     return potx, inpx, inpy, poty, img, frame, att_pot, att_dec
 
@@ -119,13 +127,13 @@ if __name__ == '__main__':
     frame = ax4.imshow(saliency)
     ax4.set_title("Saliency")
 
-    dnf_att = DNF2D(260, 340)
+    dnf_att = DNF2D(26, 34)
     ax5 = fig.add_subplot(gs[4:7, 1:4])
-    att_pot = plt.imshow(dnf_att.potentials) #, cmap='hot', interpolation='nearest', animated=True)
+    att_pot = plt.imshow(dnf_att.potentials, vmin=-6, vmax=6) #, cmap='hot', interpolation='nearest', animated=True)
     ax5.set_title("Attention Potentials")
 
     ax5 = fig.add_subplot(gs[4:7, 4:7])
-    att_dec = plt.imshow(dnf_att.activations) #, cmap='hot', interpolation='nearest', animated=True)
+    att_dec = plt.imshow(dnf_att.activations, vmin=0, vmax=1) #, cmap='hot', interpolation='nearest', animated=True)
     ax5.set_title("Attention Decision")
 
     ani = animation.FuncAnimation(fig, updatefig, interval=timestep//1000, blit=True) #//50
