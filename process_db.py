@@ -6,10 +6,10 @@ import numpy as np
 from Frame import Frame
 
 inp = "Sortie"
-out = "baseline"
-offset = 900 * 16667
+out = "test"
+offset = 0 * 16667
 dirs = os.listdir(inp)
-dirs = ["Plane1"]
+dirs = ["Highway3"]
 
 for folder in dirs:
     print("Starting", folder, end="... ")
@@ -44,8 +44,10 @@ for folder in dirs:
     print("Copying frames", end="... ")
 
     # Reading first frame timestamp
-    f_hour, f_minute, f_seconds, f_microsecs = int(f_frame[37:39]), int(f_frame[40:42]), int(f_frame[43:45]), int(f_frame[46:53])
-    f_timestamp = int(f_frame[18:27])
+    breakdown = f_frame.strip("\n").split(" ")
+    f_timestamp = int(breakdown[3])
+    breakdown = breakdown[5].split(":")
+    f_hour, f_minute, f_seconds, f_microsecs = int(breakdown[0][6:8]), int(breakdown[1][0:2]), int(breakdown[1][3:5]), int(breakdown[2])
 
     os.makedirs(os.path.join(out_path, "frames"), exist_ok=True)
     lst_frames = os.listdir(os.path.join(in_path, "frames"))

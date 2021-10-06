@@ -25,5 +25,6 @@ class Frame:
             self.time = current_end
             if nb > self.offset:
                 img = Image.fromarray(np.uint8(self.frame))
-                img.save(os.path.join(path, "frame"+str(nb)+".png"))
+                img.save(os.path.join(path, str(int(self.time))+".png"))
+                #img.save(os.path.join(path, "frame"+str(nb)+".png"))
             nb += 1

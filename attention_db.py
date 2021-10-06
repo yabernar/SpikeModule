@@ -45,7 +45,7 @@ saliency = cv2.absdiff(bkg, frame)
 saliency = cv2.resize(saliency, resolution)
 
 def update_stimulus():
-    global current_index, current_frame, dnf, start_time, dsec, saliency
+    global current_index, current_frame, dnf, start_time, dsec, saliency, next_frame_tmstmp
     current_end = start_time + timestep
     if current_end//100000 > dsec+dsec_offset:
         dsec += 1
@@ -62,6 +62,7 @@ def update_stimulus():
         current_index += 1
     if current_frame < len(lst_frames) - 2 and next_frame_tmstmp <= current_end:
         current_frame += 1
+        next_frame_tmstmp = int(lst_frames[current_frame+1].strip(".jpg"))
         frame = cv2.imread(os.path.join("baseline", scenario, "frames", lst_frames[current_frame]))
         saliency = cv2.absdiff(bkg, frame)
         #saliency = cv2.cvtColor(saliency, cv2.COLOR_BGR2GRAY)

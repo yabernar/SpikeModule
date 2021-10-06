@@ -31,25 +31,27 @@ class DNF2D:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.dt = 0.2
-        self.tau = 1
+        self.dt = 0.01
+        self.tau = 0.02
         self.dt_tau = self.dt/self.tau
-        self.cexc = 6
-        self.sexc = 0.02
-        # self.cinh = 1
-        # self.sinh = 0.1
-        self.gain = 5
-        self.resting_level = -6
-        self.gi = 0
+        self.cexc = 8  # 8
+        self.sexc = 0.01  # 0.05
+        self.cinh = 5
+        self.sinh = 0.1
+        self.gain = 1.5
+        self.resting_level = -1
+        self.gi = 400 #500
 
         self.input = np.zeros((width, height), dtype=float)
         self.potentials = np.zeros((width, height), dtype=float)
         self.activations = np.zeros((width, height), dtype=float)
         self.lateral = np.zeros((width, height), dtype=float)
         self.kernel = np.zeros((width*2-1, height*2-1), dtype=float)
+        self.memory = np.zeros((width, height), dtype=float)
 
-        self.kernel = (self.cexc * gaussian_distribution_uniform((0.5, 0.5), self.kernel.shape, self.sexc)) - (self.gi / np.prod(self.kernel.shape))
-        # (self.cinh * gaussian_distribution_uniform((0.5, 0.5), (self.width*2, self.height*2), self.sinh)) - \
+        self.kernel = (self.cexc * gaussian_distribution_uniform((0.5, 0.5), self.kernel.shape, self.sexc)) - (self.gi / np.prod(self.kernel.shape)) \
+                      - (self.cinh * gaussian_distribution_uniform((0.5, 0.5), self.kernel.shape, self.sinh))
+
 
     def difference_of_gaussian(self, x, y):
         return self.kernel[np.abs(x[0] - y[0]), np.abs(x[1] - y[1])]
@@ -74,6 +76,9 @@ class DNF2D:
     def update_map(self):
         self.activations = special.expit(self.potentials)
         self.lateral = signal.fftconvolve(self.activations, self.kernel, mode='same')
+        self.memory += self.activations >= 0.95
+        self.memory[self.memory > 1] = 1
+        self.memory *= 0.99 # leak
         # self.lateral = np.divide(self.lateral, self.width*self.height)*40*40
 
         # print(self.lateral)
@@ -81,7 +86,6 @@ class DNF2D:
         np.random.shuffle(neurons_list)
         for i in neurons_list:
             self.update_neuron((i % self.width, i // self.width))
-
 
 def updatefig(*args):
     dnf.update_map()
